@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sylt — Download</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080810; --surface: #0e0e1a; --border: rgba(255,255,255,0.07);
+    --text: #f0f0ff; --muted: #6b6b8a; --accent1: #c966ff;
+    --accent2: #ff6b8a; --accent3: #4f8cff;
+    --grad: linear-gradient(135deg, #4f8cff, #c966ff, #ff6b6b);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #star-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.5;
+  }
+  .blob { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; opacity: 0.15; animation: floatBlob 8s ease-in-out infinite alternate; }
+  .blob-1 { width: 600px; height: 600px; background: #4f8cff; top: -200px; left: -200px; }
+  .blob-2 { width: 500px; height: 500px; background: #c966ff; bottom: -150px; right: -150px; animation-delay: -4s; }
+  @keyframes floatBlob { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,40px) scale(1.05); } }
+
+  .back-link {
+    position: fixed; top: 24px; left: 28px; z-index: 10;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--text); }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .dl-card {
+    position: relative; z-index: 2;
+    background: var(--surface); border: 1px solid rgba(201,102,255,0.22);
+    border-radius: 20px; padding: 40px 36px 32px;
+    width: min(500px, calc(100vw - 40px));
+    box-shadow: 0 0 80px rgba(201,102,255,0.1), 0 40px 100px rgba(0,0,0,0.6);
+    animation: cardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  .card-top-bar {
+    height: 2px; background: var(--grad);
+    position: absolute; top: 0; left: 0; right: 0;
+    border-radius: 20px 20px 0 0;
+  }
+  .dl-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--accent1); font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    background: rgba(201,102,255,0.1); border: 1px solid rgba(201,102,255,0.2);
+    border-radius: 99px; padding: 4px 12px; margin-bottom: 18px;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent1); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+  .dl-icon { font-size: 40px; margin-bottom: 14px; display: block; filter: drop-shadow(0 0 14px rgba(201,102,255,0.5)); }
+  .dl-title {
+    font-size: 26px; font-weight: 800; letter-spacing: -0.5px;
+    background: var(--grad); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 4px;
+  }
+  .dl-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; min-height: 20px; transition: color 0.3s; }
+  .dl-sub.ready { color: #4ade80; -webkit-text-fill-color: #4ade80; }
+
+  .dl-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .dl-step {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; border-radius: 10px;
+    border: 1px solid var(--border); background: rgba(255,255,255,0.02);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .dl-step.active { border-color: rgba(201,102,255,0.4); background: rgba(201,102,255,0.06); }
+  .dl-step.done   { border-color: rgba(74,222,128,0.3);  background: rgba(74,222,128,0.05); }
+  .dl-step-icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; flex-shrink: 0;
+    background: rgba(255,255,255,0.05); color: var(--muted);
+    border: 1px solid var(--border);
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+  }
+  .dl-step.active .dl-step-icon { background: rgba(201,102,255,0.15); color: var(--accent1); border-color: rgba(201,102,255,0.4); animation: spin 1.2s linear infinite; }
+  .dl-step.done   .dl-step-icon { background: rgba(74,222,128,0.15); color: #4ade80; border-color: rgba(74,222,128,0.4); animation: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .dl-step-name   { font-size: 13px; font-weight: 700; color: var(--text); }
+  .dl-step-detail { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .dl-step.done .dl-step-detail { color: #4ade80; }
+
+  .dl-terminal {
+    background: #050508; border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 10px 14px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    line-height: 1.7; color: rgba(255,255,255,0.5);
+    height: 88px; overflow-y: auto; margin-bottom: 18px;
+  }
+  .t-purple { color: var(--accent1); } .t-blue { color: var(--accent3); } .t-green { color: #4ade80; }
+
+  .dl-progress-wrap { background: rgba(255,255,255,0.07); border-radius: 99px; height: 3px; overflow: hidden; margin-bottom: 7px; }
+  .dl-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg,#4f8cff,#c966ff); border-radius: 99px; box-shadow: 0 0 8px rgba(201,102,255,0.5); }
+  .dl-progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 22px; font-family: 'DM Mono', monospace; }
+
+  .btn-dl-final {
+    display: none; width: 100%; padding: 14px 0;
+    background: linear-gradient(135deg, var(--accent1), var(--accent3));
+    border: none; border-radius: 10px; color: #fff;
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; gap: 8px; align-items: center; justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 30px rgba(201,102,255,0.35);
+  }
+  .btn-dl-final.show { display: flex; }
+  .btn-dl-final:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(201,102,255,0.5); }
+</style>
+</head>
+<body>
+
+<canvas id="star-canvas"></canvas>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<a href="sylt.html" class="back-link">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  Back to Home
+</a>
+
+<div class="dl-card">
+  <div class="card-top-bar"></div>
+  <div class="dl-badge"><span class="badge-dot"></span>Sylt v1.0 — Latest</div>
+  <span class="dl-icon">⚡</span>
+  <div class="dl-title">Downloading Sylt</div>
+  <div class="dl-sub" id="dl-subtitle">Preparing your download… hold tight.</div>
+
+  <div class="dl-steps">
+    <div class="dl-step" id="step-0">
+      <div class="dl-step-icon" id="step-icon-0">1</div>
+      <div><div class="dl-step-name">Verifying key</div><div class="dl-step-detail" id="step-detail-0">Authenticating session...</div></div>
+    </div>
+    <div class="dl-step" id="step-1">
+      <div class="dl-step-icon" id="step-icon-1">2</div>
+      <div><div class="dl-step-name">Fetching release</div><div class="dl-step-detail" id="step-detail-1">Connecting to CDN...</div></div>
+    </div>
+    <div class="dl-step" id="step-2">
+      <div class="dl-step-icon" id="step-icon-2">3</div>
+      <div><div class="dl-step-name">Integrity check</div><div class="dl-step-detail" id="step-detail-2">Verifying checksums...</div></div>
+    </div>
+    <div class="dl-step" id="step-3">
+      <div class="dl-step-icon" id="step-icon-3">4</div>
+      <div><div class="dl-step-name">Preparing package</div><div class="dl-step-detail" id="step-detail-3">Building installer...</div></div>
+    </div>
+  </div>
+
+  <div class="dl-terminal" id="dl-terminal">
+    <span class="t-purple">sylt</span> &gt; initializing download pipeline...<br/>
+  </div>
+
+  <div class="dl-progress-wrap"><div class="dl-progress-bar" id="dl-bar"></div></div>
+  <div class="dl-progress-label">
+    <span id="dl-label-left">Starting...</span>
+    <span id="dl-label-right">0%</span>
+  </div>
+
+  <button class="btn-dl-final" id="btn-final" onclick="triggerFinalDownload()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    Click to Save Sylt.exe
+  </button>
+</div>
+
+<script>
+  const SYLT_DOWNLOAD_URL = 'https://github.com/YOUR_REPO/releases/download/TAG/Sylt.exe';
+
+  const DL_STEPS = [
+    { detail0:'Authenticating session...', detail1:'Token OK ✓', terminal:'<span class="t-purple">auth</span> &gt; token verified &mdash; <span class="t-green">VALID</span>', pct:22, label:'Authenticating...' },
+    { detail0:'Resolving CDN node...',     detail1:'cdn-us-east-02 selected ✓', terminal:'<span class="t-blue">cdn</span>  &gt; resolved <span class="t-green">cdn-us-east-02.sylt.gg</span> &mdash; latency 14ms', pct:47, label:'Fetching package...' },
+    { detail0:'Computing SHA-256...',      detail1:'Checksum match ✓', terminal:'<span class="t-purple">hash</span> &gt; SHA256 <span class="t-green">a3f9c2...d81e</span> &mdash; <span class="t-green">OK</span>', pct:73, label:'Verifying integrity...' },
+    { detail0:'Signing installer...',      detail1:'Package ready ✓', terminal:'<span class="t-blue">pkg</span>  &gt; Sylt.exe packed &mdash; <span class="t-green">3.2 MB ready</span>', pct:100, label:'Done!' }
+  ];
+
+  let dlTerm, dlBar, dlLabelL, dlLabelR;
+
+  window.addEventListener('load', () => {
+    dlTerm=document.getElementById('dl-terminal'); dlBar=document.getElementById('dl-bar');
+    dlLabelL=document.getElementById('dl-label-left'); dlLabelR=document.getElementById('dl-label-right');
+    setTimeout(()=>runDlStep(0), 600);
+  });
+
+  function runDlStep(idx) {
+    if (idx >= DL_STEPS.length) { onDlReady(); return; }
+    const s=DL_STEPS[idx];
+    const stepEl=document.getElementById('step-'+idx), iconEl=document.getElementById('step-icon-'+idx), detailEl=document.getElementById('step-detail-'+idx);
+    stepEl.className='dl-step active'; iconEl.textContent='◌'; detailEl.textContent=s.detail0; dlLabelL.textContent=s.label;
+    animateDlBar(parseFloat(dlBar.style.width)||0, s.pct, 900);
+    setTimeout(()=>{
+      dlLabelR.textContent=s.pct+'%'; detailEl.textContent=s.detail1;
+      stepEl.className='dl-step done'; iconEl.textContent='✓';
+      dlTerm.innerHTML+=s.terminal+'<br/>'; dlTerm.scrollTop=dlTerm.scrollHeight;
+      setTimeout(()=>runDlStep(idx+1), 350);
+    }, 1100);
+  }
+
+  function animateDlBar(from, to, dur) {
+    const start=performance.now();
+    function tick(now){ const p=Math.min((now-start)/dur,1), ease=p<0.5?2*p*p:-1+(4-2*p)*p; dlBar.style.width=(from+(to-from)*ease)+'%'; if(p<1)requestAnimationFrame(tick); }
+    requestAnimationFrame(tick);
+  }
+
+  function onDlReady() {
+    const sub=document.getElementById('dl-subtitle');
+    sub.textContent='✅ Everything checks out — your download is ready!'; sub.classList.add('ready');
+    dlTerm.innerHTML+='<span class="t-green">sylt</span> &gt; <span class="t-green">download authorized — click below to save</span><br/>'; dlTerm.scrollTop=dlTerm.scrollHeight;
+    document.getElementById('btn-final').classList.add('show');
+  }
+
+  function triggerFinalDownload() {
+    const a=document.createElement('a'); a.href=SYLT_DOWNLOAD_URL; a.download='Sylt.exe';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+
+  /* Stars */
+  const sc=document.getElementById('star-canvas'), ctx=sc.getContext('2d');
+  const cols=['#c966ff','#4f8cff','#ff6b8a','#ffffff','#a78bfa','#818cf8'];
+  let stars=[],W=0,H=0;
+  function resize(){ W=sc.width=window.innerWidth; H=sc.height=window.innerHeight; }
+  function initStars(){ stars=[]; for(let i=0;i<180;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.2,color:cols[Math.floor(Math.random()*cols.length)],baseAlpha:Math.random()*0.5+0.1,twinkleSpeed:Math.random()*0.8+0.3,twinkleOffset:Math.random()*Math.PI*2,vy:-(Math.random()*0.12+0.03)}); }
+  function drawStars(t){ ctx.clearRect(0,0,W,H); const ts=t*0.001; for(const s of stars){ s.y+=s.vy; if(s.y<-4){s.y=H+4;s.x=Math.random()*W;} const tw=0.5+0.5*Math.sin(ts*s.twinkleSpeed+s.twinkleOffset),alpha=s.baseAlpha*(0.4+0.6*tw); ctx.save();ctx.globalAlpha=alpha; if(tw>0.75){const g=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*2.5);g.addColorStop(0,s.color);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(s.x,s.y,s.r*2.5,0,Math.PI*2);ctx.fill();} ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.restore(); } }
+  function loop(t){ drawStars(t); requestAnimationFrame(loop); }
+  resize(); initStars(); requestAnimationFrame(loop);
+  window.addEventListener('resize',()=>{ resize(); initStars(); });
+</script>
+</body>
+</html>

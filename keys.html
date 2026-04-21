@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sylt — Buy Keys</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        :root {
+            --bg: #080810;
+            --surface: #0e0e1a;
+            --surface-2: #13131f;
+            --text: #f0f0ff;
+            --muted: #6b6b8a;
+            --accent1: #c966ff;
+            --accent2: #ff6b8a;
+            --accent3: #4f8cff;
+            --grad: linear-gradient(135deg, #4f8cff, #c966ff, #ff6b6b);
+            --border: rgba(255,255,255,0.07);
+            --border-bright: rgba(255,255,255,0.14);
+            --robux: #e74c3c;
+            --success: #4ade80;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Background effects ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 1000; opacity: 0.5;
+        }
+        .blob {
+            position: fixed; border-radius: 50%; filter: blur(120px);
+            pointer-events: none; z-index: 0; opacity: 0.1;
+            animation: floatBlob 8s ease-in-out infinite alternate;
+        }
+        .blob-1 { width: 500px; height: 500px; background: #4f8cff; top: -150px; left: -150px; }
+        .blob-2 { width: 400px; height: 400px; background: #c966ff; bottom: 10%; right: -100px; animation-delay: -4s; }
+        @keyframes floatBlob {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(25px, 35px) scale(1.04); }
+        }
+
+        /* ── Nav ── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 60px;
+            background: rgba(8,8,16,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+        .logo-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent1);
+            box-shadow: 0 0 10px var(--accent1);
+        }
+        .logo-text {
+            background: var(--grad);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-back {
+            color: var(--muted); text-decoration: none; font-size: 13px;
+            font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+            display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+        }
+        .nav-back:hover { color: var(--text); }
+
+        /* ── Hero ── */
+        .hero {
+            position: relative; z-index: 1;
+            text-align: center;
+            padding: 80px 40px 48px;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(201,102,255,0.1); border: 1px solid rgba(201,102,255,0.25);
+            border-radius: 100px; padding: 6px 16px; font-size: 11px; font-weight: 700;
+            color: var(--accent1); letter-spacing: 1px; text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+        .hero h1 {
+            font-size: clamp(42px, 7vw, 76px); font-weight: 800;
+            line-height: 1; letter-spacing: -3px; margin-bottom: 16px;
+        }
+        .hero h1 .grad {
+            background: var(--grad); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            background-size: 200%; animation: gradShift 4s ease infinite;
+        }
+        @keyframes gradShift {
+            0%,100%{background-position:0% 50%} 50%{background-position:100% 50%}
+        }
+        .hero p { font-size: 16px; color: var(--muted); font-weight: 400; }
+
+        /* ── Cards ── */
+        .cards-section {
+            position: relative; z-index: 1;
+            max-width: 1100px; margin: 0 auto;
+            padding: 0 40px 60px;
+        }
+        .cards {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+        }
+        @media (max-width: 820px) { .cards { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px; position: relative;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .card:hover { border-color: var(--border-bright); transform: translateY(-3px); }
+        .card.featured {
+            border-color: rgba(201,102,255,0.3);
+            background: linear-gradient(160deg, #121224 0%, #0e0e1a 60%);
+            box-shadow: 0 0 40px rgba(201,102,255,0.08);
+        }
+
+        .popular-tag {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--accent1), var(--accent3));
+            color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
+            text-transform: uppercase; padding: 4px 14px; border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .plan-name {
+            font-size: 18px; font-weight: 800; margin-bottom: 6px;
+        }
+        .card-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+
+        .price-amount {
+            font-size: 44px; font-weight: 800; line-height: 1;
+            letter-spacing: -2px; margin-bottom: 4px;
+        }
+        .price-amount sup { font-size: 16px; font-weight: 600; color: var(--muted); vertical-align: super; }
+        .price-amount-robux {
+            font-size: 18px; font-weight: 600; color: var(--muted); margin-bottom: 6px;
+        }
+        .period { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+
+        .button-group { display: flex; gap: 10px; }
+        .btn {
+            flex: 1; padding: 12px; border-radius: 10px;
+            font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+            letter-spacing: 0.3px;
+        }
+        .btn-ltc {
+            background: transparent; border-color: var(--border-bright); color: var(--muted);
+        }
+        .btn-ltc:hover { border-color: rgba(79,140,255,0.5); color: var(--accent3); }
+        .btn-rbx {
+            background: transparent; border-color: rgba(231,76,60,0.4); color: var(--robux);
+        }
+        .btn-rbx:hover { background: rgba(231,76,60,0.08); border-color: var(--robux); }
+
+        /* ── Coupon ── */
+        .coupon-section {
+            position: relative; z-index: 1;
+            max-width: 1100px; margin: 0 auto 60px;
+            padding: 0 40px; text-align: center;
+        }
+        .coupon-toggle {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer;
+            user-select: none; transition: color 0.2s;
+        }
+        .coupon-toggle:hover { color: var(--text); }
+        .coupon-toggle .plus { font-size: 18px; transition: transform 0.3s; }
+        .coupon-toggle.active .plus { transform: rotate(45deg); }
+
+        .coupon-input-wrapper {
+            max-width: 360px; margin: 14px auto 0;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px;
+            display: none; flex-direction: column; gap: 8px;
+        }
+        .coupon-input-wrapper.show { display: flex; }
+        .coupon-row { display: flex; gap: 8px; }
+        .coupon-input {
+            flex: 1; padding: 11px 14px;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border-bright);
+            border-radius: 8px; color: var(--text);
+            font-family: 'DM Mono', monospace; font-size: 13px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .coupon-input:focus { border-color: rgba(201,102,255,0.4); }
+        .coupon-btn {
+            padding: 11px 18px; background: var(--surface-2); border: 1px solid var(--border-bright);
+            color: var(--text); border-radius: 8px; font-family: 'Syne', sans-serif;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        }
+        .coupon-btn:hover { border-color: rgba(201,102,255,0.4); color: var(--accent1); }
+        .coupon-status { font-size: 12px; text-align: center; }
+        .applied-coupon {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(74,222,128,0.08); border: 1px solid var(--success);
+            color: var(--success); padding: 12px 16px; border-radius: 10px; font-size: 13px;
+        }
+        .remove-coupon {
+            background: none; border: none; color: var(--success);
+            font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1;
+        }
+
+        /* ── Footer note ── */
+        .footer-note {
+            position: relative; z-index: 1;
+            max-width: 1100px; margin: 0 auto 60px;
+            padding: 0 40px; text-align: center;
+        }
+        .footer-note-inner {
+            display: inline-block; font-size: 13px; color: var(--muted);
+            padding: 14px 28px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: var(--radius);
+        }
+
+        /* ── Modals ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 9000;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(12px);
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border-bright);
+            border-radius: 20px; padding: 36px;
+            width: min(440px, 100%); position: relative;
+            box-shadow: 0 0 80px rgba(0,0,0,0.6);
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+        .modal-close {
+            position: absolute; top: 14px; right: 18px;
+            background: none; border: none; color: var(--muted); font-size: 20px;
+            cursor: pointer; transition: color 0.2s; font-family: 'Syne', sans-serif;
+            line-height: 1;
+        }
+        .modal-close:hover { color: var(--text); }
+
+        .modal-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+        .modal-plan { font-size: 15px; color: var(--muted); margin-bottom: 24px; }
+
+        .pay-box {
+            border-radius: 12px; padding: 20px; margin-bottom: 20px;
+        }
+        .pay-box-ltc { background: rgba(79,140,255,0.06); border: 1px solid rgba(79,140,255,0.2); }
+        .pay-box-rbx { background: rgba(231,76,60,0.06); border: 1px solid rgba(231,76,60,0.2); }
+
+        .pay-box strong { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; }
+
+        .ltc-amount-display {
+            font-size: 36px; font-weight: 800; color: var(--success);
+            letter-spacing: -1px; margin: 8px 0 16px; line-height: 1;
+        }
+        .ltc-amount-display span { font-size: 14px; font-weight: 400; color: var(--muted); }
+
+        .rbx-amount-display {
+            font-size: 36px; font-weight: 800; color: var(--robux);
+            letter-spacing: -1px; margin: 8px 0 16px; line-height: 1;
+        }
+
+        .ltc-address-box {
+            font-family: 'DM Mono', monospace; word-break: break-all;
+            background: rgba(0,0,0,0.3); padding: 12px 14px; border-radius: 8px;
+            color: #c0c0d8; font-size: 12px; margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .modal-hint {
+            font-size: 12px; line-height: 1.7; color: var(--muted); margin: 16px 0;
+        }
+        .modal-hint strong { color: var(--text); }
+
+        .modal-btn {
+            width: 100%; padding: 14px; border-radius: 10px;
+            font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+            cursor: pointer; margin-top: 8px; transition: all 0.2s; border: none;
+        }
+        .modal-btn-ltc {
+            background: rgba(79,140,255,0.15); color: var(--accent3);
+            border: 1px solid rgba(79,140,255,0.3);
+        }
+        .modal-btn-ltc:hover { background: rgba(79,140,255,0.25); }
+        .modal-btn-rbx {
+            background: var(--robux); color: #fff;
+        }
+        .modal-btn-rbx:hover { background: #c0392b; }
+        .modal-btn-secondary {
+            background: transparent; color: var(--muted);
+            border: 1px solid var(--border-bright);
+        }
+        .modal-btn-secondary:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+        @media (max-width: 600px) {
+            nav { padding: 16px 20px; }
+            .hero { padding: 60px 20px 36px; }
+            .cards-section, .coupon-section, .footer-note { padding: 0 20px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav>
+    <a class="nav-logo" href="index.html">
+        <span class="logo-dot"></span>
+        <span class="logo-text">Sylt</span>
+    </a>
+    <a href="index.html" class="nav-back">
+        ← Back to home
+    </a>
+</nav>
+
+<section class="hero">
+    <div class="hero-badge">Options</div>
+    <h1>Buy <span class="grad">Keys</span></h1>
+    <p>Activate your Sylt executor with our keys.</p>
+</section>
+
+<section class="cards-section">
+    <div class="cards">
+        <!-- 1 WEEK -->
+        <div class="card">
+            <div class="plan-name">1 Week</div>
+            <p class="card-desc">Perfect for testing out Sylt.</p>
+            <div class="price-amount"><sup>€</sup><span class="price-val" data-base="4.99">4.99</span></div>
+            <div class="price-amount-robux">⏣ <span class="price-val-rbx" data-base="500">500</span></div>
+            <div class="period">active for 1 week</div>
+            <div class="button-group">
+                <button onclick="openLTCModal('1 Week', 4.99)" class="btn btn-ltc">LTC</button>
+                <button onclick="openRBXModal('1 Week', 500)" class="btn btn-rbx">RBX</button>
+            </div>
+        </div>
+
+        <!-- LIFETIME -->
+        <div class="card featured">
+            <div class="popular-tag">Most Popular</div>
+            <div class="plan-name">Lifetime</div>
+            <p class="card-desc">Ideal for using Sylt long-term.</p>
+            <div class="price-amount"><sup>€</sup><span class="price-val" data-base="19.99">19.99</span></div>
+            <div class="price-amount-robux">⏣ <span class="price-val-rbx" data-base="2499">2499</span></div>
+            <div class="period">one-time purchase</div>
+            <div class="button-group">
+                <button onclick="openLTCModal('Lifetime', 19.99)" class="btn btn-ltc">LTC</button>
+                <button onclick="openRBXModal('Lifetime', 2499)" class="btn btn-rbx">RBX</button>
+            </div>
+        </div>
+
+        <!-- 1 MONTH -->
+        <div class="card">
+            <div class="plan-name">1 Month</div>
+            <p class="card-desc">Perfect for short-term use.</p>
+            <div class="price-amount"><sup>€</sup><span class="price-val" data-base="9.99">9.99</span></div>
+            <div class="price-amount-robux">⏣ <span class="price-val-rbx" data-base="1099">1099</span></div>
+            <div class="period">active for 1 month</div>
+            <div class="button-group">
+                <button onclick="openLTCModal('1 Month', 9.99)" class="btn btn-ltc">LTC</button>
+                <button onclick="openRBXModal('1 Month', 1099)" class="btn btn-rbx">RBX</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Coupon -->
+<div class="coupon-section">
+    <div onclick="toggleCoupon()" class="coupon-toggle" id="couponToggle">
+        <span class="plus">+</span> Have a coupon code?
+    </div>
+    <div class="coupon-input-wrapper" id="couponWrapper">
+        <div class="coupon-row">
+            <input type="text" id="couponInput" class="coupon-input" placeholder="Enter coupon code"
+                   autocomplete="off" onkeypress="if(event.key==='Enter')applyCoupon()">
+            <button onclick="applyCoupon()" class="coupon-btn">Apply</button>
+        </div>
+        <div id="couponStatus" class="coupon-status"></div>
+    </div>
+</div>
+
+<!-- Footer note -->
+<div class="footer-note">
+    <div class="footer-note-inner">
+        Pay with Litecoin (LTC) or Robux (RBX) · Instant key delivery after confirmation
+    </div>
+</div>
+
+<!-- ── LTC Modal ── -->
+<div class="modal-overlay" id="ltcModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('ltcModal')">✕</button>
+        <div class="modal-title">Pay with <span style="color:var(--accent3)">LTC</span></div>
+        <div class="modal-plan" id="ltcPlanDisplay"></div>
+        <div class="pay-box pay-box-ltc">
+            <strong>Amount to send:</strong>
+            <div class="ltc-amount-display" id="ltcAmountDisplay"></div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+                Send <strong style="color:var(--text)">exactly</strong> this amount in Litecoin to:
+            </div>
+            <div class="ltc-address-box" id="ltcAddressDisplay">ltc1qqnmvaknkhvsp30ftjv5f8t7rke5x843e99x4me</div>
+            <button onclick="copyLTCAddress()" class="modal-btn modal-btn-ltc">📋 Copy LTC Address</button>
+        </div>
+        <p class="modal-hint">
+            After sending, DM <strong>@nikssnaa</strong> on Discord with the transaction ID and blockchain.
+        </p>
+        <button onclick="closeModal('ltcModal')" class="modal-btn modal-btn-secondary">Close</button>
+    </div>
+</div>
+
+<!-- ── RBX Modal ── -->
+<div class="modal-overlay" id="rbxModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('rbxModal')">✕</button>
+        <div class="modal-title">Pay with <span style="color:var(--robux)">Robux</span></div>
+        <div class="modal-plan" id="rbxPlanDisplay"></div>
+        <div class="pay-box pay-box-rbx">
+            <strong>Amount to purchase:</strong>
+            <div class="rbx-amount-display" id="rbxAmountDisplay"></div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">
+                Click the button below to open the Roblox gamepass.
+            </div>
+            <button onclick="openGamepass()" class="modal-btn modal-btn-rbx">🎮 Open Roblox Gamepass</button>
+        </div>
+        <p class="modal-hint">
+            After purchasing, DM <strong>@nikssnaa</strong> on Discord with your Roblox username.
+        </p>
+        <button onclick="closeModal('rbxModal')" class="modal-btn modal-btn-secondary">Close</button>
+    </div>
+</div>
+
+<script>
+    const LTC_ADDRESS = "ltc1qqnmvaknkhvsp30ftjv5f8t7rke5x843e99x4me";
+    const LTC_EUR_RATE = 110; // Update with current LTC/EUR rate
+
+    const gamepasses = {
+        "1 Week":    { url: "https://www.roblox.com/catalog/5144296449/Puma-white-black" },
+        "1 Month":   { url: "https://www.roblox.com/catalog/5496397257/meme" },
+        "Lifetime":  { url: "https://www.roblox.com/catalog/5144334467/vans" }
+    };
+
+    const coupons = {
+        "VHS6MNV2EM+CNWKZZA7OEG==": 0.10,
+        "2CFXTZXNZK25LININ4K4G==":  0.20,
+        "L1XOXSIDYN+PS97QWE95ZQ==": 0.15,
+        "KBRR3R9F1MS18DVKNYES2G==": 0.50,
+        "WOKI":    0.05,
+        "LAWSHUB": 0.10,
+    };
+
+    let currentDiscount = 0;
+    let appliedCoupon = null;
+    let currentRBXPlan = null;
+
+    /* ── Coupon ── */
+    function toggleCoupon() {
+        const wrapper = document.getElementById('couponWrapper');
+        const toggle  = document.getElementById('couponToggle');
+        wrapper.classList.toggle('show');
+        toggle.classList.toggle('active');
+    }
+
+    function applyCoupon() {
+        const input = document.getElementById('couponInput').value.trim().toUpperCase();
+        const status = document.getElementById('couponStatus');
+        if (coupons[input] !== undefined) {
+            currentDiscount = coupons[input];
+            appliedCoupon = input;
+            document.getElementById('couponWrapper').innerHTML = `
+                <div class="applied-coupon">
+                    <span>✅ <strong>${input}</strong> — ${Math.round(currentDiscount*100)}% off</span>
+                    <button onclick="removeCoupon()" class="remove-coupon">✕</button>
+                </div>`;
+            updateAllPrices();
+        } else {
+            status.innerHTML = '<span style="color:var(--accent2)">❌ Invalid coupon code</span>';
+        }
+    }
+
+    function removeCoupon() {
+        currentDiscount = 0; appliedCoupon = null;
+        document.getElementById('couponWrapper').innerHTML = `
+            <div class="coupon-row">
+                <input type="text" id="couponInput" class="coupon-input" placeholder="Enter coupon code"
+                       autocomplete="off" onkeypress="if(event.key==='Enter')applyCoupon()">
+                <button onclick="applyCoupon()" class="coupon-btn">Apply</button>
+            </div>
+            <div id="couponStatus" class="coupon-status"></div>`;
+        updateAllPrices();
+    }
+
+    function updateAllPrices() {
+        document.querySelectorAll('.price-val').forEach(el => {
+            const base = parseFloat(el.dataset.base);
+            el.textContent = (base * (1 - currentDiscount)).toFixed(2);
+        });
+        document.querySelectorAll('.price-val-rbx').forEach(el => {
+            const base = parseFloat(el.dataset.base);
+            el.textContent = Math.round(base * (1 - currentDiscount));
+        });
+    }
+
+    /* ── Modals ── */
+    function openModal(id) {
+        document.getElementById(id).classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+        el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeModal('ltcModal'); closeModal('rbxModal'); }
+    });
+
+    function openLTCModal(plan, baseEur) {
+        const final = baseEur * (1 - currentDiscount);
+        const ltcAmt = (final / LTC_EUR_RATE).toFixed(4);
+        document.getElementById('ltcPlanDisplay').innerHTML =
+            plan + (appliedCoupon ? ` <span style="color:var(--success);font-size:12px">(${appliedCoupon})</span>` : '');
+        document.getElementById('ltcAmountDisplay').innerHTML =
+            `€${final.toFixed(2)} <span>(${ltcAmt} LTC)</span>`;
+        document.getElementById('ltcAddressDisplay').textContent = LTC_ADDRESS;
+        openModal('ltcModal');
+    }
+
+    function openRBXModal(plan, baseRbx) {
+        const final = Math.round(baseRbx * (1 - currentDiscount));
+        currentRBXPlan = plan;
+        document.getElementById('rbxPlanDisplay').innerHTML =
+            plan + (appliedCoupon ? ` <span style="color:var(--robux);font-size:12px">(${appliedCoupon})</span>` : '');
+        document.getElementById('rbxAmountDisplay').innerHTML = `⏣ ${final}`;
+        openModal('rbxModal');
+    }
+
+    function openGamepass() {
+        const gp = gamepasses[currentRBXPlan];
+        if (gp) window.open(gp.url, '_blank');
+    }
+
+    function copyLTCAddress() {
+        const addr = document.getElementById('ltcAddressDisplay').textContent;
+        navigator.clipboard.writeText(addr).then(() => {
+            const btn = event.currentTarget;
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✅ Copied!';
+            setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+    }
+</script>
+</body>
+</html>
